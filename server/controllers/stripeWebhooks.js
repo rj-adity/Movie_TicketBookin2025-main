@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import mongoose from 'mongoose';
 import Booking from '../models/Booking.js';
+import { inngest } from '../src/inngest/index.js';
 
 const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -117,6 +118,16 @@ async function updateBookingPaid(bookingId, source, sessionId, paymentIntentId) 
 
             if (updateResult) {
                 console.log(`✅ Booking updated as paid from ${source}:`, bookingId);
+                // Emit booking/paid event to Inngest
+                try {
+                  await inngest.send({
+                    name: 'booking/paid',
+                    data: { bookingId: updateResult._id?.toString?.() || bookingId }
+                  });
+                  console.log('📧 booking/paid event emitted to Inngest');
+                } catch (err) {
+                  console.error('❌ Failed to emit booking/paid event to Inngest:', err);
+                }
                 return true;
             } else {
                 attempts++;
