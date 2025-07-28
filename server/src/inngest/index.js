@@ -2,6 +2,7 @@ import { Inngest } from "inngest";
 import User from "../../models/User.js";
 import Booking from "../../models/Booking.js";
 import { cancelBookingAndReleaseSeats } from "./cancelBooking.js";
+import { sendBookingConfirmationEmail } from "./sendBookingEmail.js";
 
 export const inngest = new Inngest({ id: "movie-ticket-booking" });
 
@@ -93,6 +94,27 @@ const syncUserUpdation = inngest.createFunction(
 
 // Ingest functiions to cancel bookings 
 
+// Inngest function to send email when user makes a successful booking
+const sendBookingEmail = inngest.createFunction(
+  { id: "send-booking-confirmation-email" },
+  { event: "booking/paid" },
+  async ({ event, step }) => {
+    const { bookingId } = event.data;
+    if (!bookingId) throw new Error("bookingId missing in event data");
+
+    // Fetch booking
+    const booking = await step.run("fetch-booking", async () => {
+      return await Booking.findById(bookingId);
+    });
+    if (!booking) return;
+
+    // Send email
+    await step.run("send-booking-email", async () => {
+      await sendBookingConfirmationEmail(booking);
+    });
+  }
+);
+
 // Inngest function to cancel booking and release seats after 20 minutes if payment is not made
 const cancelUnpaidBooking = inngest.createFunction(
   { id: "cancel-unpaid-booking" },
@@ -119,4 +141,4 @@ const cancelUnpaidBooking = inngest.createFunction(
 );
 
 // Export all the Inngest functions in an array
-export const functions = [syncUserCreation, syncUserDeletion, syncUserUpdation, cancelUnpaidBooking];
+export const functions = [syncUserCreation, syncUserDeletion, syncUserUpdation, cancelUnpaidBooking, sendBookingEmail];
