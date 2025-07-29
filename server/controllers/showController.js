@@ -187,7 +187,7 @@ export const addShow = async (req, res) => {
         try {
           await import('../src/inngest/index.js').then(async ({ inngest }) => {
             await inngest.send({
-              name: 'send-new-show-reminder',
+              name: 'show/created',
               data: {
                 title: movie.title,
                 posterUrl: movie.poster_path,
@@ -196,10 +196,10 @@ export const addShow = async (req, res) => {
                 movieId: movie._id.toString()
               }
             });
-            console.log('⏳ send-new-show-reminder event emitted to Inngest');
+            console.log('⏳ show/created event emitted to Inngest');
           });
         } catch (err) {
-          console.error('❌ Failed to emit send-new-show-reminder event to Inngest:', err);
+          console.error('❌ Failed to emit show/created event to Inngest:', err);
         }
 
     } catch (error) {

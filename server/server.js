@@ -19,11 +19,29 @@ app.use('/api/stripe', express.raw({type: 'application/json'}), stripeWebhooks )
 
 // Now add body parsing and CORS for all other routes
 app.use(express.json({ limit: '10mb' }));
+// CORS configuration
+const allowedOrigins = process.env.NODE_ENV === 'production'
+    ? [
+        'https://movie-ticket-bookin2025-main.vercel.app',
+        'https://movie-ticket-bookin2025.vercel.app' // Add any other frontend domains you might use
+      ]
+    : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:4173'];
+
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production'
-        ? ['https://your-frontend-domain.vercel.app']
-        : ['http://localhost:3000', 'http://localhost:5173'],
-    credentials: true
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.log('CORS blocked origin:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 app.use(clerkMiddleware());
@@ -46,6 +64,16 @@ app.use('/api/booking', bookingRouter);
 // Error handling middleware
 app.use((error, req, res, next) => {
     console.error('Unhandled error:', error);
+    
+    // Handle CORS errors specifically
+    if (error.message === 'Not allowed by CORS') {
+        return res.status(403).json({
+            success: false,
+            message: 'CORS: Origin not allowed',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+    
     res.status(500).json({
         success: false,
         message: 'Internal server error',
