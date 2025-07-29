@@ -1,6 +1,7 @@
 import Booking from "../models/Booking.js";
-import Show from "../models/Show.js"
-import stripe from 'stripe'
+import Show from "../models/Show.js";
+import stripe from 'stripe';
+import { inngest } from '../src/inngest/index.js';
 
 
 // Function to check avilability for the selected seats for a movie
@@ -42,7 +43,18 @@ export const createBooking = async (req, res) => {
             show: showId,
             amount: showData.showPrice * selectedSeats.length,
             bookedSeats: selectedSeats,
-        })
+        });
+
+        // Emit booking/created event to Inngest for seat cancellation timer
+        try {
+          await inngest.send({
+            name: 'booking/created',
+            data: { bookingId: booking._id?.toString?.() }
+          });
+          console.log('⏳ booking/created event emitted to Inngest');
+        } catch (err) {
+          console.error('❌ Failed to emit booking/created event to Inngest:', err);
+        }
 
         selectedSeats.map((seat) => {
             showData.occupiedSeats[seat] = userId;
