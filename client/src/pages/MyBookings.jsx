@@ -127,7 +127,7 @@ const MyBookings = () => {
                       {item.show.movie.title.split(' ').slice(0,2).join(' ')}<br />
                       {item.show.movie.title.split(' ').slice(2).join(' ')}
                     </p>
-                    <p className='text-xs text-gray-500 mt-1'>Image Base URL: {image_base_url}</p>
+                    
                     {item.isPaid && (
                       <div className='flex items-center gap-1 px-2 py-1 bg-green-500/20 rounded-full'>
                         <div className='w-2 h-2 bg-green-500 rounded-full'></div>
