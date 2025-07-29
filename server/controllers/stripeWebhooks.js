@@ -96,9 +96,11 @@ async function updateBookingPaid(bookingId, source, sessionId, paymentIntentId) 
         return false;
     }
 
-    const objectId = mongoose.Types.ObjectId.isValid(bookingId)
+    const isValidObjectId = mongoose.Types.ObjectId.isValid(bookingId);
+    const objectId = isValidObjectId
         ? new mongoose.Types.ObjectId(bookingId)
         : bookingId;
+    console.log('🔎 Debug: bookingId:', bookingId, '| isValidObjectId:', isValidObjectId, '| objectId:', objectId);
 
     let attempts = 0;
     const maxAttempts = 3;
@@ -115,6 +117,7 @@ async function updateBookingPaid(bookingId, source, sessionId, paymentIntentId) 
                 },
                 { new: true }
             );
+            console.log('🔎 Debug: updateResult:', updateResult);
 
             if (updateResult) {
                 console.log(`✅ Booking updated as paid from ${source}:`, bookingId);
