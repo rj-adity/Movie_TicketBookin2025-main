@@ -1,11 +1,13 @@
 import Stripe from 'stripe';
 import mongoose from 'mongoose';
 import Booking from '../models/Booking.js';
+import connectDB from '../configs/db.js';
 import { inngest } from '../src/inngest/index.js';
 
 const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const stripeWebhooks = async (request, response) => {
+    await connectDB();
     console.log('🔄 Stripe webhook received');
     console.log('📋 Headers:', {
         'stripe-signature': request.headers['stripe-signature'] ? 'Present' : 'Missing',
