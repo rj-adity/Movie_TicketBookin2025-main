@@ -3,11 +3,13 @@ import logo from './logo.svg';
 import screenImage from './screenImage.svg';
 import appStore from './appStore.svg';
 import googlePlay from './googlePlay.svg';
+import marvelLogo from './marvelLogo.svg';
 export const assets = {
   logo,
   screenImage,
   appStore,
   googlePlay,
+  marvelLogo,
 };
 
 // Dummy trailer data for TrailersSection
