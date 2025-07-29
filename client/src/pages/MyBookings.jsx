@@ -118,20 +118,32 @@ const MyBookings = () => {
             : 'bg-primary/8 border-primary/20'
         }`}>
           <div className='flex flex-col md:flex-row'>
-            <img src={ image_base_url +item.show.movie.poster_path} alt="" className='md:max-w-45 aspect-video h-auto object-cover object-bottom rounded'/>
-            <div className='flex flex-col p-4'>
-              <div className='flex items-center gap-2'>
-                <p className='text-lg font-semibold' >{item.show.movie.title}</p>
-                {item.isPaid && (
-                  <div className='flex items-center gap-1 px-2 py-1 bg-green-500/20 rounded-full'>
-                    <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                    <span className='text-green-500 text-xs font-medium'>Confirmed</span>
+            {item.show && item.show.movie ? (
+              <>
+                <img src={ image_base_url + item.show.movie.poster_path} alt={item.show.movie.title} className='md:max-w-45 aspect-video h-auto object-cover object-bottom rounded'/>
+                <div className='flex flex-col p-4'>
+                  <div className='flex items-center gap-2'>
+                    <p className='text-lg font-semibold leading-tight' >
+                      {item.show.movie.title.split(' ').slice(0,2).join(' ')}<br />
+                      {item.show.movie.title.split(' ').slice(2).join(' ')}
+                    </p>
+                    <p className='text-xs text-gray-500 mt-1'>Image Base URL: {image_base_url}</p>
+                    {item.isPaid && (
+                      <div className='flex items-center gap-1 px-2 py-1 bg-green-500/20 rounded-full'>
+                        <div className='w-2 h-2 bg-green-500 rounded-full'></div>
+                        <span className='text-green-500 text-xs font-medium'>Confirmed</span>
+                      </div>
+                    )}
                   </div>
-                )}
+                  <p className='text-gray-400 text-sm' >{timeFormat(item.show.movie.runtime)}</p>
+                  <p className='text-gray-400 text-sm mt-auto' >{dateFormat(item.show.showDateTime)}</p>
+                </div>
+              </>
+            ) : (
+              <div className='flex flex-col p-4'>
+                <p className='text-red-500'>Show or movie information is not available.</p>
               </div>
-              <p className='text-gray-400 text-sm' >{timeFormat(item.show.movie.runtime)}</p>
-              <p className='text-gray-400 text-sm mt-auto' >{dateFormat(item.show.showDateTime)}</p>
-            </div>
+            )}
           </div>
 
             <div className='flex flex-col md:items-end md:text-right justify-between p-4'>

@@ -183,6 +183,25 @@ export const addShow = async (req, res) => {
             showsCreated: showsInput.reduce((total, show) => total + show.time.length, 0)
         });
 
+        // Emit Inngest event to notify all users about new show
+        try {
+          await import('../src/inngest/index.js').then(async ({ inngest }) => {
+            await inngest.send({
+              name: 'send-new-show-reminder',
+              data: {
+                title: movie.title,
+                posterUrl: movie.poster_path,
+                date: showsInput[0]?.date || '',
+                time: showsInput[0]?.time[0] || '',
+                movieId: movie._id.toString()
+              }
+            });
+            console.log('⏳ send-new-show-reminder event emitted to Inngest');
+          });
+        } catch (err) {
+          console.error('❌ Failed to emit send-new-show-reminder event to Inngest:', err);
+        }
+
     } catch (error) {
         console.error('Error adding show:', error);
         
